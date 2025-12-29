@@ -46,6 +46,8 @@ export interface Connection {
 }
 
 export type RootStackParamList = {
+  Login: undefined;
+  SignUp: undefined;
   Feed: undefined;
   Profile: { userId?: string };
   CreatePost: undefined;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Image,
   Platform,
   KeyboardAvoidingView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,11 +29,18 @@ export const PostDetailsScreen: React.FC = () => {
   const route = useRoute<PostDetailsRouteProp>();
   const { postId } = route.params;
   
-  const { posts, comments, currentUser, toggleLike, addComment, getPostComments } =
+  const { posts, comments, currentUser, toggleLike, addComment, getPostComments, loadComments, loading } =
     useSocialStore();
   const post = posts.find((p) => p.id === postId);
   const postComments = post ? getPostComments(post.id) : [];
   const [commentText, setCommentText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (postId) {
+      loadComments(postId);
+    }
+  }, [postId]);
 
   if (!post) {
     return (
@@ -43,22 +52,27 @@ export const PostDetailsScreen: React.FC = () => {
     );
   }
 
-  const handleAddComment = () => {
-    if (!commentText.trim() || !currentUser) return;
+  const handleAddComment = async () => {
+    if (!commentText.trim() || !currentUser || !post) return;
 
-    const newComment = {
-      id: `comment-${Date.now()}`,
-      postId: post.id,
-      userId: currentUser.id,
-      userName: currentUser.name,
-      userAvatar: currentUser.avatar,
-      content: commentText.trim(),
-      likesCount: 0,
-      createdAt: new Date().toISOString(),
-    };
+    setSubmitting(true);
+    try {
+      await addComment(post.id, commentText.trim());
+      setCommentText('');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to add comment');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    addComment(newComment);
-    setCommentText('');
+  const handleLike = async () => {
+    if (!post) return;
+    try {
+      await toggleLike(post.id);
+    } catch (error: any) {
+      console.error('Failed to toggle like:', error);
+    }
   };
 
   return (
@@ -104,7 +118,7 @@ export const PostDetailsScreen: React.FC = () => {
             <View style={styles.postActions}>
               <TouchableOpacity
                 style={styles.postActionButton}
-                onPress={() => toggleLike(post.id)}
+                onPress={handleLike}
               >
                 <Ionicons
                   name={post.isLiked ? 'heart' : 'heart-outline'}
@@ -185,16 +199,20 @@ export const PostDetailsScreen: React.FC = () => {
           <TouchableOpacity
             style={[
               styles.commentSendButton,
-              !commentText.trim() && styles.commentSendButtonDisabled,
+              (!commentText.trim() || submitting) && styles.commentSendButtonDisabled,
             ]}
             onPress={handleAddComment}
-            disabled={!commentText.trim()}
+            disabled={!commentText.trim() || submitting}
           >
-            <Ionicons
-              name="send"
-              size={20}
-              color={commentText.trim() ? '#4ECDC4' : '#ccc'}
-            />
+            {submitting ? (
+              <ActivityIndicator size="small" color="#4ECDC4" />
+            ) : (
+              <Ionicons
+                name="send"
+                size={20}
+                color={commentText.trim() ? '#4ECDC4' : '#ccc'}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

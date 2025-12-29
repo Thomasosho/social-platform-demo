@@ -1,85 +1,32 @@
 # Social Platform Demo
 
-A React Native social networking application with feed, profiles, posts, and social interactions. Built to demonstrate expertise in React Native, social platforms, and modern mobile app architecture.
+A React Native social networking app with a feed, user profiles, posts, comments, and follow functionality. Users can create posts, like and comment on content, follow other users, and view profiles.
 
-## Features
+## Environment Setup
 
-- **Social Feed**: Scrollable feed of posts with like, comment, and share
-- **User Profiles**: View profiles with followers, following, and posts
-- **Post Creation**: Create text posts with real-time feed updates
-- **Post Details**: View full posts with comments and interactions
-- **Follow System**: Follow/unfollow users with real-time updates
-- **Optimistic Updates**: Instant UI feedback for better UX
+Create a `.env` file in the root directory with your Firebase and Cloudinary credentials:
 
-## Tech Stack
+```env
+# Firebase Configuration (required)
+EXPO_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
 
-- **React Native** with Expo
-- **TypeScript** for type safety
-- **Zustand** for state management
-- **React Navigation** for navigation
-- **date-fns** for relative time formatting
-- **Expo Vector Icons** for icons
-
-## Project Structure
-
-```
-src/
-  components/     # Reusable UI components (PostCard)
-  screens/        # Screen components (Feed, Profile, CreatePost, PostDetails)
-  store/          # Zustand state management with normalized data
-  data/           # Mock data
-  types/          # TypeScript type definitions
-  utils/          # Helper functions (date formatting)
+# Cloudinary Configuration (required for image uploads)
+EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
+EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-upload-preset
+EXPO_PUBLIC_CLOUDINARY_API_KEY=your-api-key
 ```
 
-## Key Technical Decisions
-
-1. **State Management**: Zustand with normalized data structure for efficiency
-2. **Performance**: FlatList for efficient feed rendering with large datasets
-3. **Optimistic Updates**: Instant feedback for likes and comments
-4. **Component Memoization**: Prevent unnecessary re-renders
-5. **Type Safety**: Full TypeScript for reliability
-
-## Running the Project
+## Getting Started
 
 ```bash
 # Install dependencies
 npm install
 
-# Start Expo
+# Start the app
 npm start
-
-# Run on iOS
-npm run ios
-
-# Run on Android
-npm run android
-
-# Run on Web
-npm run web
 ```
-
-## Demo Walkthrough
-
-1. **Feed Screen**: Scroll through posts, like, comment, navigate to profiles
-2. **Profile Screen**: View user profiles, follow/unfollow, see user's posts
-3. **Create Post**: Create new posts with form validation
-4. **Post Details**: View full post with comments, add comments
-
-<!-- ## Ready for Production
-
-- Mock data structure matches real API patterns
-- Store pattern ready for API integration
-- Real-time updates can be added with WebSockets
-- Image upload ready for implementation
-- Comment threading can be extended -->
-
-<!-- ## Interview Talking Points
-
-- Demonstrates social platform expertise
-- Shows understanding of feed algorithms and performance
-- React Native best practices
-- Optimistic updates for better UX
-- Scalable architecture for growth -->
-
-# social-platform-demo

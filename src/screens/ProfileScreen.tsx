@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +16,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { useSocialStore } from '../store/socialStore';
+import { useAuth } from '../hooks/useAuth';
 import { RootStackParamList } from '../types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -23,20 +26,55 @@ export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ProfileRouteProp>();
   const { userId } = route.params || {};
+  const { user } = useAuth();
   
-  const { users, currentUser, getUserPosts, toggleFollow } = useSocialStore();
+  const { users, currentUser, getUserPosts, toggleFollow, loadUser, loadUserPosts, loading } = useSocialStore();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [loadingFollow, setLoadingFollow] = useState(false);
+  
+  const profileUserId = userId || currentUser?.id;
   const profileUser = userId
-    ? users.find((u) => u.id === userId)
+    ? users.find((u) => u.id === userId) || currentUser
     : currentUser;
   
   const isOwnProfile = !userId || userId === currentUser?.id;
   const userPosts = profileUser ? getUserPosts(profileUser.id) : [];
 
+  useEffect(() => {
+    if (userId && userId !== currentUser?.id) {
+      loadUser(userId);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (profileUser) {
+      loadUserPosts(profileUser.id);
+    }
+  }, [profileUser]);
+
+  const handleFollow = async () => {
+    if (!userId || !currentUser) return;
+    
+    setLoadingFollow(true);
+    try {
+      await toggleFollow(userId);
+      setIsFollowing(!isFollowing);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to update follow status');
+    } finally {
+      setLoadingFollow(false);
+    }
+  };
+
   if (!profileUser) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>User not found</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#4ECDC4" />
+          ) : (
+            <Text style={styles.errorText}>User not found</Text>
+          )}
         </View>
       </SafeAreaView>
     );
@@ -112,7 +150,8 @@ export const ProfileScreen: React.FC = () => {
                 styles.followButton,
                 profileUser.isFollowing && styles.followButtonActive,
               ]}
-              onPress={() => toggleFollow(profileUser.id)}
+              onPress={handleFollow}
+              disabled={loadingFollow}
             >
               <Text
                 style={[
